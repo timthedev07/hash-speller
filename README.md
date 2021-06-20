@@ -13,3 +13,10 @@ npm i spellerjs
 ```
 
 ## Usage
+
+```javascript
+import { Checker } from "spellerjs";
+
+const checker = new Checker("<language>", "text you want to check");
+checker.check(true /* if you want the stats to be printed out */);
+```
