@@ -1,5 +1,5 @@
 {
-  "name": "spellerjs",
+  "name": "hash-speller-js",
   "version": "1.0.0",
   "description": "This is a spell checker implemented with hash tables(super fast)",
   "main": "./index.js",

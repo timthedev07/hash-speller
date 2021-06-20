@@ -1,4 +1,4 @@
-# spellerjs
+# hash-speller-js
 
 This is a package that performs spell checking on a given chunk of text in the provided language. The python equivalent is [here](https://relentlessexploration.readthedocs.io/en/latest/spell-checker.html).
 
@@ -9,7 +9,7 @@ Well, because it uses hash tables as its core data structure, which mean once lo
 ## Installation
 
 ```bash
-npm i spellerjs
+npm i hash-speller-js
 ```
 
 ## Usage
