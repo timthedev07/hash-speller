@@ -1,6 +1,6 @@
 # hash-speller-js
 
-This is a package that performs spell checking on a given chunk of text in the provided language. The python equivalent is [here](https://relentlessexploration.readthedocs.io/en/latest/spell-checker.html).
+This is a package that performs spell checking on a given chunk of text in the provided language. The python equivalent is [here](https://timthedev07.readthedocs.io/en/latest/spell-checker.html).
 
 ## Why would I use this particular package?
 
