@@ -141,6 +141,7 @@ class Checker {
     console.log(`
 Total number of words checked: ${statistics.total_words}
 Number of misspelled words: ${statistics.misspelled_num}
+Misspelled words: [${statistics.misspelled_words.join(", ")}]
 Number of words in dictionary: ${this.words_inDict}
 Checking time: ${statistics.runtime} ms
 Words loading time: ${statistics.load_time} ms
