@@ -141,9 +141,9 @@ class Checker {
     console.log(`
 Total number of words checked: ${statistics.total_words}
 Number of misspelled words: ${statistics.misspelled_num}
-Number of words in dictionary: ${this.words_inDict} 
+Number of words in dictionary: ${this.words_inDict}
 Checking time: ${statistics.runtime} ms
-Words loading time: ${statistics.load_time} ms 
+Words loading time: ${statistics.load_time} ms
 Text adjustment time: ${statistics.clean_time} ms
 		`);
   }
@@ -222,7 +222,10 @@ Text adjustment time: ${statistics.clean_time} ms
   }
 }
 
-const checker = new Checker("italian", "hello world");
+const checker = new Checker(
+  "english",
+  "Henry doesnt eat vegetabos at all he loevs meaty balls"
+);
 checker.check(true);
 
 module.exports = {
