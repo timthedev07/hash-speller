@@ -223,12 +223,6 @@ Text adjustment time: ${statistics.clean_time} ms
   }
 }
 
-const checker = new Checker(
-  "english",
-  "Henry doesnt eat vegetabos at all he loevs meaty balls"
-);
-checker.check(true);
-
 module.exports = {
   Checker,
 };
