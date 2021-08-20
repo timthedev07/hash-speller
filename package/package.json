@@ -23,5 +23,8 @@
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",
     "ts-node": "^10.2.1"
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }
