@@ -30,7 +30,7 @@ const ESCAPE_CHAR = [
 
 const size = 456976;
 
-class Checker {
+export class Checker {
   language: Language;
   text: string;
   table: HashTable;
@@ -204,7 +204,3 @@ Text adjustment time: ${statistics.preProcess_time} ms
     return statistics;
   }
 }
-
-module.exports = {
-  Checker,
-};
