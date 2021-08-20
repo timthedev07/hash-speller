@@ -3,6 +3,12 @@ import fetch from "node-fetch";
 
 type Language = "english" | "italian" | "spanish" | "german" | "french";
 
+const replaceAt = (str: string, index: number, replacement: string) => {
+  return (
+    str.substr(0, index) + replacement + str.substr(index + replacement.length)
+  );
+};
+
 const ESCAPE_CHAR = [
   ".",
   ",",
@@ -81,14 +87,18 @@ export class Checker {
       throw "Invalid Language";
     }
     if (!this.text) {
-      return false;
+      throw "Invalid text";
     }
-    let buffer = this.text;
-    for (let i = 0; i < buffer.length; i++) {
-      if (buffer.charAt(i) in ESCAPE_CHAR) {
-        this.text.replace(buffer.charAt(i), "");
+
+    const text = this.text;
+    for (let i = 0, n = text.length; i < n; i++) {
+      if (text.charAt(i) in ESCAPE_CHAR) {
+        this.text = replaceAt(this.text, i, "");
+        continue;
       }
     }
+    this.text = this.text.toLocaleLowerCase();
+
     const end_time = Date.now();
     const final_time = end_time - start_time;
     return final_time;
@@ -110,7 +120,6 @@ export class Checker {
       `https://raw.githubusercontent.com/timthedev07/spellerjs/master/data/${this.language}.txt`
     );
     let lines = (await text.text()).split("\n");
-    console.log(lines.length);
 
     this.dictWords = lines.length;
 
@@ -127,13 +136,13 @@ export class Checker {
 
   print(statistics: any) {
     console.log(`
-Total number of words checked: ${statistics.total_words}
-Number of misspelled words: ${statistics.misspelled_num}
-Misspelled words: [ ${statistics.misspelled_words.join(", ")} ]
+Total number of words checked: ${statistics.totalWords}
+Number of misspelled words: ${statistics.misspelledNum}
+Misspelled words: [ ${statistics.misspelledWords.join(", ")} ]
 Number of words in dictionary: ${this.dictWords}
 Checking time: ${statistics.runtime} ms
-Words loading time: ${statistics.load_time} ms
-Text adjustment time: ${statistics.preProcess_time} ms
+Words loading time: ${statistics.loadTime} ms
+Text adjustment time: ${statistics.preProcessTime} ms
 		`);
   }
 
@@ -148,8 +157,13 @@ Text adjustment time: ${statistics.preProcess_time} ms
     }
 
     // preProcess and bucketize
-    const preProcessTime = this.preProcess();
-    if (preProcessTime === false) return false;
+    let preProcessTime = 0;
+    try {
+      preProcessTime = this.preProcess();
+    } catch (err) {
+      throw err;
+    }
+
     const loadTime = await this.bucketize();
 
     // get list of words

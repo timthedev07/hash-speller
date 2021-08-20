@@ -50,11 +50,11 @@ export class HashTable {
     let head = this.nodes[index];
 
     if (head === null) {
-      head = node;
+      this.nodes[index] = node;
     } else {
       const next = head.next;
       node.next = next;
-      head.next = node;
+      this.nodes[index]!.next = node;
     }
   }
 
