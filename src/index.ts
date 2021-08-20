@@ -1,36 +1,42 @@
-var fs = require("fs");
-var helper = require("./module.js");
-var path = require("path");
+import { HashTable, ListNode } from "./classes";
+
+type Language = "english" | "italian" | "spanish" | "german" | "french";
+
+const ESCAPE_CHAR = [
+  ".",
+  ",",
+  "!",
+  ";",
+  ":",
+  "?",
+  "%",
+  "~",
+  "+",
+  "=",
+  "-",
+  "_",
+  "*",
+  "@",
+  "#",
+  "&",
+  "(",
+  ")",
+  "[",
+  "]",
+  "{",
+  "}",
+];
+
+const size = 456976;
 
 const Reset = "\x1b[0m";
 const FgRed = "\x1b[31m";
 
 class Checker {
-  _ESCAPE_CHAR = [
-    ".",
-    ",",
-    "!",
-    ";",
-    ":",
-    "?",
-    "%",
-    "~",
-    "+",
-    "=",
-    "-",
-    "_",
-    "*",
-    "@",
-    "#",
-    "&",
-    "(",
-    ")",
-    "[",
-    "]",
-    "{",
-    "}",
-  ];
-  _size = 456976;
+  language: Language;
+  text: string;
+  table: HashTable;
+  dictWords: number;
   /**
    * Available languages are:
    *
@@ -43,23 +49,15 @@ class Checker {
    * spanish
    *
    * italian
-   *
-   * Please choose one of them and type in exactly what's shown above!
-   * @param {String} language The language of the text
-   * @param {String} text The actual text
    */
-  constructor(language, text) {
-    this.ht = new helper.Hashtable();
+  constructor(language: Language, text: string) {
+    this.table = new HashTable(size);
     this.language = language;
     this.text = text;
-    this.words_inDict = 0;
+    this.dictWords = 0;
   }
 
-  /**
-   * checks if the given language is supported
-   * @param {String} lang
-   */
-  check_lang(lang) {
+  checkLang() {
     const SUPPORTED_LANGS = [
       "english",
       "german",
@@ -68,10 +66,6 @@ class Checker {
       "italian",
     ];
 
-    if (!SUPPORTED_LANGS.includes(lang.toLowerCase())) {
-      console.log(`${FgRed}Invalid language!${Reset}`);
-      return false;
-    }
     return true;
   }
 
@@ -80,9 +74,9 @@ class Checker {
    *
    * Removes any non-alphabet chars
    */
-  clean() {
+  private preProcess() {
     const start_time = Date.now();
-    if (!this.check_lang(this.language)) {
+    if (!this.checkLang()) {
       return false;
     }
     if (this.text === null) {
@@ -90,7 +84,7 @@ class Checker {
     }
     var buffer = this.text;
     for (var i = 0; i < buffer.length; i++) {
-      if (buffer.charAt(i) in this._ESCAPE_CHAR) {
+      if (buffer.charAt(i) in ESCAPE_CHAR) {
         this.text.replace(buffer.charAt(i), "");
       }
     }
@@ -106,14 +100,10 @@ class Checker {
    * @returns
    */
   bucketize() {
-    if (!this.check_lang(this.language)) {
-      return false;
-    }
-    this.clean();
-    var ht = new helper.Hashtable(this._size);
+    this.preProcess();
+    var ht = new HashTable(size);
 
-    const filename = path.join(__dirname, "/data", `/${this.language}.txt`);
-    const start_time = Date.now();
+    const startTime = Date.now();
     var lines;
 
     var text = fs.readFileSync(filename, "utf-8");
@@ -126,7 +116,7 @@ class Checker {
     }
 
     const end_time = Date.now();
-    const final_time = end_time - start_time;
+    const final_time = end_time - startTime;
 
     this.ht = ht;
     return final_time;
@@ -145,7 +135,7 @@ Misspelled words: [${statistics.misspelled_words.join(", ")}]
 Number of words in dictionary: ${this.words_inDict}
 Checking time: ${statistics.runtime} ms
 Words loading time: ${statistics.load_time} ms
-Text adjustment time: ${statistics.clean_time} ms
+Text adjustment time: ${statistics.preProcess_time} ms
 		`);
   }
 
@@ -174,7 +164,7 @@ Text adjustment time: ${statistics.clean_time} ms
    *
    *     // time spent on removing useless
    *     // characters for the analysis
-   *     clean_time: Number,
+   *     preProcess_time: Number,
    *
    *     // time spent on looking up all of the words
    *     runtime: Number
@@ -187,8 +177,8 @@ Text adjustment time: ${statistics.clean_time} ms
       return;
     }
 
-    // clean and bucketize
-    const clean_time = this.clean();
+    // preProcess and bucketize
+    const preProcess_time = this.preProcess();
     const load_time = this.bucketize();
 
     // get list of words
@@ -198,7 +188,7 @@ Text adjustment time: ${statistics.clean_time} ms
       total_words: words.length,
       misspelled_words: [],
       load_time: load_time,
-      clean_time: clean_time,
+      preProcess_time: preProcess_time,
       misspelled_num: 0,
       runtime: 0.0,
     };
