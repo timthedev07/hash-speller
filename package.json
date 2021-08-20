@@ -1,22 +1,22 @@
 {
   "name": "hash-speller-js",
   "version": "1.0.0",
-  "description": "This is a spell checker implemented with hash tables(super fast)",
+  "description": "A lightweight, intuitive, and stable nodejs spell checker.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/WORK90873/spellerjs"
+    "url": "https://github.com/timthedev07/spellerjs"
   },
   "main": "dist/index.js",
   "keywords": [
     "speller",
     "javascript"
   ],
-  "author": "rem.cs90873@gmail.com",
+  "author": "Tim",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/WORK90873/spellerjs/issues"
+    "url": "https://github.com/timthedev07/spellerjs/issues"
   },
-  "homepage": "https://github.com/WORK90873/spellerjs#readme",
+  "homepage": "https://github.com/timthedev07/spellerjs#readme",
   "dependencies": {
     "node-fetch": "^2.6.1"
   },
