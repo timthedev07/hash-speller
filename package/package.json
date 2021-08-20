@@ -1,5 +1,5 @@
 {
-  "name": "hash-speller-js",
+  "name": "hash-speller",
   "version": "1.0.0",
   "description": "A lightweight, intuitive, and stable nodejs spell checker.",
   "repository": {
