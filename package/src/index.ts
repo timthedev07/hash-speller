@@ -49,22 +49,25 @@ export class Checker {
    * italian
    */
   constructor(language: Language, text: string) {
+    if (!this.checkLang(language)) {
+      throw "Invalid Language";
+    }
     this.table = new HashTable(size);
     this.language = language;
     this.text = text;
     this.dictWords = 0;
   }
 
-  checkLang() {
-    // const SUPPORTED_LANGS = [
-    //   "english",
-    //   "german",
-    //   "french",
-    //   "spanish",
-    //   "italian",
-    // ];
+  checkLang(language?: string) {
+    const SUPPORTED_LANGS = [
+      "english",
+      "german",
+      "french",
+      "spanish",
+      "italian",
+    ];
 
-    return true;
+    return SUPPORTED_LANGS.indexOf(language || this.language) !== -1;
   }
 
   /**
@@ -72,12 +75,12 @@ export class Checker {
    *
    * Removes any non-alphabet chars
    */
-  private preProcess() {
+  preProcess() {
     const start_time = Date.now();
     if (!this.checkLang()) {
-      return false;
+      throw "Invalid Language";
     }
-    if (this.text === null) {
+    if (!this.text) {
       return false;
     }
     let buffer = this.text;
@@ -107,6 +110,7 @@ export class Checker {
       `https://raw.githubusercontent.com/timthedev07/spellerjs/master/data/${this.language}.txt`
     );
     let lines = (await text.text()).split("\n");
+    console.log(lines.length);
 
     this.dictWords = lines.length;
 
@@ -137,53 +141,26 @@ Text adjustment time: ${statistics.preProcess_time} ms
    * Checks the correctness of a chunk of text in terms of spelling.
    *
    * if print is true(which by default is false), the stats would be printed out.
-   *
-   * the returned dictionary would have the structure as follows:\n
-   *
-   * ```javascript
-   *
-   * statistics = {
-   *
-   *     total_words: Number,
-   *
-   *     misspelled_num: Number,
-   *
-   *     misspelled_words: Array,
-   *
-   *     words_in_dictionary: Number,
-   *
-   *     // time spent on loading
-   *     // words into the hash table
-   *     load_time: Number,
-   *
-   *     // time spent on removing useless
-   *     // characters for the analysis
-   *     preProcess_time: Number,
-   *
-   *     // time spent on looking up all of the words
-   *     runtime: Number
-   * ```
-   *
-   * @param {Bool} print true if the stats are going to be printed out false otherwise
    */
-  check(print = false) {
+  async check(print = false) {
     if (!this.checkLang()) {
       return;
     }
 
     // preProcess and bucketize
-    const preProcess_time = this.preProcess();
-    const load_time = this.bucketize();
+    const preProcessTime = this.preProcess();
+    if (preProcessTime === false) return false;
+    const loadTime = await this.bucketize();
 
     // get list of words
     const words = this.text.split(" ");
 
     let statistics = {
-      total_words: words.length,
-      misspelled_words: [] as string[],
-      load_time: load_time,
-      preProcess_time: preProcess_time,
-      misspelled_num: 0,
+      totalWords: words.length,
+      misspelledWords: [] as string[],
+      loadTime,
+      preProcessTime,
+      misspelledNum: 0,
       runtime: 0.0,
     };
 
@@ -192,11 +169,11 @@ Text adjustment time: ${statistics.preProcess_time} ms
     for (let word = 0; word < words.length; word++) {
       if (this.table.lookup(words[word]) === false) {
         wrong++;
-        statistics.misspelled_words.push(words[word]);
+        statistics.misspelledWords.push(words[word]);
       }
     }
     statistics.runtime = Date.now() - start_time;
-    statistics.misspelled_num = wrong;
+    statistics.misspelledNum = wrong;
 
     if (print) {
       this.print(statistics);
