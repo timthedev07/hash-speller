@@ -1,4 +1,5 @@
 import { HashTable, ListNode } from "./classes";
+import fetch from "node-fetch";
 
 type Language = "english" | "italian" | "spanish" | "german" | "french";
 
@@ -29,9 +30,6 @@ const ESCAPE_CHAR = [
 
 const size = 456976;
 
-const Reset = "\x1b[0m";
-const FgRed = "\x1b[31m";
-
 class Checker {
   language: Language;
   text: string;
@@ -58,13 +56,13 @@ class Checker {
   }
 
   checkLang() {
-    const SUPPORTED_LANGS = [
-      "english",
-      "german",
-      "french",
-      "spanish",
-      "italian",
-    ];
+    // const SUPPORTED_LANGS = [
+    //   "english",
+    //   "german",
+    //   "french",
+    //   "spanish",
+    //   "italian",
+    // ];
 
     return true;
   }
@@ -82,8 +80,8 @@ class Checker {
     if (this.text === null) {
       return false;
     }
-    var buffer = this.text;
-    for (var i = 0; i < buffer.length; i++) {
+    let buffer = this.text;
+    for (let i = 0; i < buffer.length; i++) {
       if (buffer.charAt(i) in ESCAPE_CHAR) {
         this.text.replace(buffer.charAt(i), "");
       }
@@ -99,40 +97,36 @@ class Checker {
    * Returns load time if success
    * @returns
    */
-  bucketize() {
+  async bucketize() {
     this.preProcess();
-    var ht = new HashTable(size);
+    let table = new HashTable(size);
 
     const startTime = Date.now();
-    var lines;
 
-    var text = fs.readFileSync(filename, "utf-8");
-    var lines = text.split("\n");
+    let text = await fetch(
+      `https://raw.githubusercontent.com/timthedev07/spellerjs/master/data/${this.language}.txt`
+    );
+    let lines = (await text.text()).split("\n");
 
-    this.words_inDict = lines.length;
+    this.dictWords = lines.length;
 
-    for (var l = 0; l < lines.length; l++) {
-      ht.insert(new helper.HTNode(lines[l]));
+    for (let l = 0; l < lines.length; l++) {
+      table.insert(new ListNode(lines[l]));
     }
 
     const end_time = Date.now();
     const final_time = end_time - startTime;
 
-    this.ht = ht;
+    this.table = table;
     return final_time;
   }
 
-  /**
-   *
-   * @param {JSON} statistics
-   * @returns
-   */
-  _visualize(statistics) {
+  print(statistics: any) {
     console.log(`
 Total number of words checked: ${statistics.total_words}
 Number of misspelled words: ${statistics.misspelled_num}
-Misspelled words: [${statistics.misspelled_words.join(", ")}]
-Number of words in dictionary: ${this.words_inDict}
+Misspelled words: [ ${statistics.misspelled_words.join(", ")} ]
+Number of words in dictionary: ${this.dictWords}
 Checking time: ${statistics.runtime} ms
 Words loading time: ${statistics.load_time} ms
 Text adjustment time: ${statistics.preProcess_time} ms
@@ -173,7 +167,7 @@ Text adjustment time: ${statistics.preProcess_time} ms
    * @param {Bool} print true if the stats are going to be printed out false otherwise
    */
   check(print = false) {
-    if (!this.check_lang(this.language)) {
+    if (!this.checkLang()) {
       return;
     }
 
@@ -184,9 +178,9 @@ Text adjustment time: ${statistics.preProcess_time} ms
     // get list of words
     const words = this.text.split(" ");
 
-    var statistics = {
+    let statistics = {
       total_words: words.length,
-      misspelled_words: [],
+      misspelled_words: [] as string[],
       load_time: load_time,
       preProcess_time: preProcess_time,
       misspelled_num: 0,
@@ -194,20 +188,18 @@ Text adjustment time: ${statistics.preProcess_time} ms
     };
 
     const start_time = Date.now();
-    var wrong = 0;
-    for (var word = 0; word < words.length; word++) {
-      if (this.ht.lookup(new helper.HTNode(words[word])) === false) {
-        // Meaning if the word does not exist
+    let wrong = 0;
+    for (let word = 0; word < words.length; word++) {
+      if (this.table.lookup(words[word]) === false) {
         wrong++;
         statistics.misspelled_words.push(words[word]);
       }
     }
-    // Collect statistics
     statistics.runtime = Date.now() - start_time;
     statistics.misspelled_num = wrong;
 
     if (print) {
-      this._visualize(statistics);
+      this.print(statistics);
     }
     return statistics;
   }
