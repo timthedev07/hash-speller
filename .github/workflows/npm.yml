@@ -1,6 +1,10 @@
 name: Publish to NPM
 on: push
 
+defaults:
+  run:
+    working-directory: package
+
 jobs:
   publish:
     runs-on: ubuntu-latest
